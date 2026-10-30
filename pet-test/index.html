@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>测测你和你的宠物前世是什么关系</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='%239CAF9B'%3E%3Cellipse cx='50' cy='62' rx='18' ry='22'/%3E%3Ccircle cx='26' cy='44' r='8'/%3E%3Ccircle cx='42' cy='36' r='8'/%3E%3Ccircle cx='58' cy='36' r='8'/%3E%3Ccircle cx='74' cy='44' r='8'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#F6F1EA;
+    --bg-soft:#EFE9E0;
+    --card:#FFFFFF;
+    --ink:#453F38;
+    --ink-soft:#6E655B;
+    --sub:#9A9085;
+    --line:#EAE2D7;
+    --green:#9CAF9B;
+    --green-deep:#7E947D;
+    --pink:#E6CFC8;
+    --blue:#C4D2D6;
+    --tan:#D9C7AE;
+    --radius:22px;
+    --shadow:0 10px 30px rgba(120,105,88,.10);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","HarmonyOS Sans SC","Source Han Sans SC","Microsoft YaHei",sans-serif;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:linear-gradient(180deg,#F8F3EC 0%,#F4EEE6 48%,#F6F1EA 100%);
+    position:relative;
+    overflow:hidden;
+  }
+  /* 顶部标题栏 */
+  .topbar{
+    padding:16px 20px 10px;
+    text-align:center;
+    position:relative;
+    z-index:2;
+  }
+  .topbar h1{
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:.5px;
+    color:var(--ink-soft);
+  }
+  .topbar .sub{
+    font-size:11.5px;
+    color:var(--sub);
+    margin-top:2px;
+    letter-spacing:1px;
+  }
+  /* 视图容器 */
+  .view{
+    flex:1;
+    display:none;
+    flex-direction:column;
+    padding:0 20px 32px;
+    animation:fadeIn .28s ease;
+  }
+  .view.active{display:flex;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ===== 封面 ===== */
+  #cover{justify-content:flex-start;}
+  .cover-art{
+    margin:18px auto 0;
+    width:180px;
+    height:180px;
+    position:relative;
+  }
+  .cover-title{
+    text-align:center;
+    margin-top:22px;
+  }
+  .cover-title .kicker{
+    display:inline-block;
+    font-size:12px;
+    color:var(--green-deep);
+    background:rgba(156,175,155,.14);
+    padding:5px 14px;
+    border-radius:999px;
+    letter-spacing:2px;
+    margin-bottom:16px;
+  }
+  .cover-title h2{
+    font-size:27px;
+    font-weight:700;
+    line-height:1.45;
+    letter-spacing:1px;
+  }
+  .cover-title h2 em{
+    font-style:normal;
+    color:var(--green-deep);
+  }
+  .cover-lead{
+    margin:20px auto 0;
+    max-width:330px;
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:14.5px;
+  }
+  .cover-meta{
+    margin:22px auto 0;
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .cover-meta span{
+    font-size:12.5px;
+    color:var(--sub);
+    background:var(--card);
+    border:1px solid var(--line);
+    padding:7px 14px;
+    border-radius:999px;
+  }
+  .cover-cta{
+    margin-top:auto;
+    padding-top:34px;
+  }
+  .btn-primary{
+    width:100%;
+    border:none;
+    background:var(--green);
+    color:#fff;
+    font-size:16.5px;
+    font-weight:600;
+    letter-spacing:2px;
+    padding:16px;
+    border-radius:999px;
+    cursor:pointer;
+    box-shadow:0 12px 24px rgba(126,148,125,.32);
+    transition:transform .15s ease,background .15s ease;
+  }
+  .btn-primary:active{transform:scale(.97);background:var(--green-deep);}
+  .cover-note{
+    text-align:center;
+    font-size:12px;
+    color:var(--sub);
+    margin-top:14px;
+  }
+
+  /* ===== 答题页 ===== */
+  .quiz-head{
+    margin-top:14px;
+  }
+  .quiz-progress-text{
+    display:flex;
+    justify-content:space-between;
+    font-size:12.5px;
+    color:var(--sub);
+    margin-bottom:8px;
+  }
+  .progress-track{
+    height:6px;
+    background:var(--bg-soft);
+    border-radius:999px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    width:0;
+    background:linear-gradient(90deg,var(--green),#B7C6B4);
+    border-radius:999px;
+    transition:width .3s ease;
+  }
+  .question-card{
+    background:var(--card);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:26px 22px 22px;
+    margin-top:20px;
+  }
+  .question-tag{
+    font-size:12px;
+    color:var(--green-deep);
+    letter-spacing:2px;
+    margin-bottom:12px;
+  }
+  .question-text{
+    font-size:19px;
+    font-weight:600;
+    line-height:1.6;
+    margin-bottom:24px;
+  }
+  .options{display:flex;flex-direction:column;gap:13px;}
+  .option{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    border:1.5px solid var(--line);
+    background:#FDFCFB;
+    border-radius:18px;
+    padding:15px 16px;
+    cursor:pointer;
+    font-size:15px;
+    color:var(--ink);
+    text-align:left;
+    transition:all .15s ease;
+    min-height:44px;
+  }
+  .option .dot{
+    flex:none;
+    width:20px;height:20px;
+    border:1.5px solid #CFC6B9;
+    border-radius:50%;
+    position:relative;
+  }
+  .option.selected{
+    border-color:var(--green);
+    background:rgba(156,175,155,.10);
+  }
+  .option.selected .dot{border-color:var(--green);}
+  .option.selected .dot::after{
+    content:"";
+    position:absolute;inset:4px;
+    background:var(--green);
+    border-radius:50%;
+  }
+  .quiz-foot{
+    margin-top:24px;
+  }
+  .btn-next{
+    width:100%;
+    border:none;
+    background:var(--green);
+    color:#fff;
+    font-size:16px;
+    font-weight:600;
+    letter-spacing:2px;
+    padding:15px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .btn-next:disabled{
+    background:#D8D0C5;
+    color:#fff;
+    cursor:not-allowed;
+    box-shadow:none;
+  }
+  .btn-next:not(:disabled):active{transform:scale(.97);}
+  .quiz-back{
+    margin-top:14px;
+    text-align:center;
+    font-size:13px;
+    color:var(--sub);
+    background:none;border:none;
+    cursor:pointer;
+  }
+
+  /* ===== 结果页 ===== */
+  #result{padding-top:10px;}
+  .result-badge{
+    text-align:center;
+    font-size:12px;
+    color:var(--sub);
+    letter-spacing:2px;
+    margin-top:12px;
+  }
+  .result-hero{
+    margin:16px auto 0;
+    border-radius:28px;
+    padding:34px 24px 28px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .result-hero .emoji-wrap{
+    width:86px;height:86px;
+    margin:0 auto 16px;
+    background:rgba(255,255,255,.55);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .result-hero h2{
+    font-size:24px;
+    font-weight:700;
+    letter-spacing:1px;
+  }
+  .result-hero .tagline{
+    margin-top:10px;
+    font-size:14.5px;
+    color:var(--ink-soft);
+  }
+  .result-section{
+    background:var(--card);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:22px 22px;
+    margin-top:16px;
+  }
+  .result-section h3{
+    font-size:15px;
+    font-weight:600;
+    margin-bottom:12px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .result-section h3::before{
+    content:"";
+    width:8px;height:8px;border-radius:50%;
+    background:var(--green);
+    flex:none;
+  }
+  .result-section p{
+    font-size:14.5px;
+    color:var(--ink-soft);
+  }
+  .result-traits{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
+  .result-traits span{
+    font-size:12.5px;
+    padding:6px 13px;
+    border-radius:999px;
+    background:var(--bg-soft);
+    color:var(--ink-soft);
+  }
+  .result-actions{margin-top:26px;display:flex;flex-direction:column;gap:12px;}
+  .btn-ghost{
+    width:100%;
+    background:var(--card);
+    border:1.5px solid var(--line);
+    color:var(--ink-soft);
+    font-size:15px;
+    padding:14px;
+    border-radius:999px;
+    cursor:pointer;
+  }
+  .btn-ghost:active{background:var(--bg-soft);}
+  .result-share{
+    margin-top:18px;
+    text-align:center;
+    font-size:12px;
+    color:var(--sub);
+  }
+  .toast{
+    position:fixed;
+    left:50%;bottom:80px;
+    transform:translateX(-50%);
+    background:rgba(69,63,56,.92);
+    color:#fff;
+    font-size:13.5px;
+    padding:11px 20px;
+    border-radius:999px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease;
+    z-index:50;
+  }
+  .toast.show{opacity:1;}
+
+  @media(min-width:768px){
+    .app{box-shadow:0 0 60px rgba(120,105,88,.12);}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <h1>测测你和你的宠物前世是什么关系</h1>
+    <div class="sub">15 道小题 · 看看你们的缘分从何而来</div>
+  </header>
+
+  <!-- ===== 封面 ===== -->
+  <section id="cover" class="view active">
+    <div class="cover-art" aria-hidden="true">
+      <svg viewBox="0 0 180 180" width="180" height="180">
+        <circle cx="90" cy="90" r="72" fill="#EFE9E0"/>
+        <circle cx="90" cy="90" r="54" fill="#E6CFC8" opacity=".55"/>
+        <!-- 猫轮廓 -->
+        <g fill="#7E947D">
+          <path d="M63 74 L70 58 L80 70 Z"/>
+          <path d="M100 70 L110 58 L117 74 Z"/>
+          <ellipse cx="90" cy="92" rx="28" ry="25"/>
+        </g>
+        <circle cx="80" cy="90" r="2.6" fill="#453F38"/>
+        <circle cx="100" cy="90" r="2.6" fill="#453F38"/>
+        <path d="M87 97 Q90 100 93 97" stroke="#453F38" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <!-- 爪印 -->
+        <g fill="#D9C7AE" opacity=".85">
+          <ellipse cx="48" cy="128" rx="7" ry="9"/>
+          <circle cx="38" cy="119" r="3.4"/><circle cx="46" cy="115" r="3.4"/><circle cx="54" cy="115" r="3.4"/><circle cx="62" cy="119" r="3.4"/>
+        </g>
+        <g fill="#C4D2D6" opacity=".85">
+          <ellipse cx="132" cy="52" rx="6" ry="8"/>
+          <circle cx="123" cy="45" r="3"/><circle cx="130" cy="41" r="3"/><circle cx="137" cy="41" r="3"/><circle cx="144" cy="45" r="3"/>
+        </g>
+      </svg>
+    </div>
+    <div class="cover-title">
+      <span class="kicker">缘分小测试</span>
+      <h2>你和毛孩子的<br><em>前世羁绊</em>，到底是什么？</h2>
+    </div>
+    <p class="cover-lead">
+      从你们日常相处的小细节里，读出一段跨越轮回的缘分。不用想太多，凭第一感觉选就好，答案会替你说出平时没注意到的默契。
+    </p>
+    <div class="cover-meta">
+      <span>共 15 题</span>
+      <span>约 2 分钟</span>
+      <span>无需登录</span>
+    </div>
+    <div class="cover-cta">
+      <button class="btn-primary" id="startBtn">开始测试</button>
+      <p class="cover-note">测试仅供娱乐，缘分这件事，开心最重要</p>
+    </div>
+  </section>
+
+  <!-- ===== 答题 ===== -->
+  <section id="quiz" class="view">
+    <div class="quiz-head">
+      <div class="quiz-progress-text">
+        <span id="qIndexText">第 1 / 15 题</span>
+        <span id="qPercent">7%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <div class="question-card">
+      <div class="question-tag" id="questionTag">相处日常</div>
+      <div class="question-text" id="questionText"></div>
+      <div class="options" id="optionsBox"></div>
+    </div>
+    <div class="quiz-foot">
+      <button class="btn-next" id="nextBtn" disabled>下一题</button>
+      <button class="quiz-back" id="backBtn">返回上一题</button>
+    </div>
+  </section>
+
+  <!-- ===== 结果 ===== -->
+  <section id="result" class="view">
+    <div class="result-badge">你们的前世关系是</div>
+    <div class="result-hero" id="resultHero">
+      <div class="emoji-wrap" id="resultIcon"></div>
+      <h2 id="resultName"></h2>
+      <div class="tagline" id="resultTagline"></div>
+    </div>
+    <div class="result-section">
+      <h3>前世缘起</h3>
+      <p id="resultStory"></p>
+    </div>
+    <div class="result-section">
+      <h3>今生你们这样相处</h3>
+      <p id="resultLife"></p>
+      <div class="result-traits" id="resultTraits"></div>
+    </div>
+    <div class="result-section">
+      <h3>给你们的小提醒</h3>
+      <p id="resultTip"></p>
+    </div>
+    <div class="result-actions">
+      <button class="btn-primary" id="restartBtn">重新测试</button>
+      <button class="btn-ghost" id="copyBtn">复制我的结果文案</button>
+    </div>
+    <p class="result-share">测完可以截图发给同样养宠的朋友，看看你们的缘分一不一样</p>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== 题目数据：每题 4 个选项，选项对应结果类型 ===== */
+const QUESTIONS = [
+  {
+    tag:"相处日常",
+    text:"你刚到家，它最可能以哪种方式迎接你？",
+    options:[
+      {label:"立刻黏上来，贴着你不肯走，像分开了好久没见", type:"family"},
+      {label:"跟在你身后转一圈，各忙各的，但知道你回来了", type:"companion"},
+      {label:"先站定观察你几秒，确认你状态没事才放松下来", type:"guardian"},
+      {label:"立刻跑到门口守着你，寸步不离", type:"loyal"}
+    ]
+  },
+  {
+    tag:"周末时光",
+    text:"周末你们俩最常有的状态是？",
+    options:[
+      {label:"一起追闹玩耍，玩到彼此都累瘫", type:"playmate"},
+      {label:"安静依偎在你身边，眼神一直黏着你", type:"lover"},
+      {label:"你心情不好时它主动凑过来，气氛慢慢变软", type:"healer"},
+      {label:"各做各的事，但待在同一个空间里就很安心", type:"soulmate"}
+    ]
+  },
+  {
+    tag:"小摩擦",
+    text:"你和它发生小摩擦时，通常是什么画风？",
+    options:[
+      {label:"互相赌气一小会儿，转头又凑到一起", type:"rival"},
+      {label:"它会一直等你消气，怎么哄都不离开", type:"believer"},
+      {label:"你学着读懂它的信号，它也在慢慢适应你的节奏", type:"mentor"},
+      {label:"吵完各自散开溜达一圈，回来就翻篇了", type:"traveler"}
+    ]
+  },
+  {
+    tag:"深夜时刻",
+    text:"深夜你睡不着，它一般会怎么做？",
+    options:[
+      {label:"钻进被窝挨着你，像家里人一样陪你熬着", type:"family"},
+      {label:"扒拉你，想拉你起来继续玩", type:"playmate"},
+      {label:"趴在床边守着，确认你睡熟才趴下", type:"guardian"},
+      {label:"把脑袋搁在你手边，安安静静陪你平复情绪", type:"healer"}
+    ]
+  },
+  {
+    tag:"出行想象",
+    text:"想象一段长途出行，你更希望它怎样？",
+    options:[
+      {label:"跟你一起上路，路上互相照应", type:"companion"},
+      {label:"在家也一直惦记你，等你回来", type:"lover"},
+      {label:"留在原地等你，忠诚地守着这个家", type:"loyal"},
+      {label:"各自自在，知道彼此心里都有对方", type:"soulmate"}
+    ]
+  },
+  {
+    tag:"关系定位",
+    text:"你觉得你们之间更像什么？",
+    options:[
+      {label:"嘴上嫌弃，身体很诚实", type:"rival"},
+      {label:"你教它规矩，它教你耐心和温柔", type:"mentor"},
+      {label:"这份缘分好像等了很久才轮到", type:"believer"},
+      {label:"遇到了就结伴走一段，缘分自然", type:"traveler"}
+    ]
+  },
+  {
+    tag:"心软瞬间",
+    text:"它让你最心软的瞬间是？",
+    options:[
+      {label:"那种毫无保留的亲近，像血缘一样天然", type:"family"},
+      {label:"望向你时，眼里只有你的专注", type:"lover"},
+      {label:"默默挡在你身前保护你的样子", type:"guardian"},
+      {label:"你一个眼神，它就懂你的默契", type:"soulmate"}
+    ]
+  },
+  {
+    tag:"日常相处",
+    text:"日常相处里，你更享受哪一种？",
+    options:[
+      {label:"并肩过日子，平淡踏实", type:"companion"},
+      {label:"打打闹闹，家里永远有笑声", type:"playmate"},
+      {label:"互相治愈，彼此都是对方的情绪出口", type:"healer"},
+      {label:"它百分百信任你、依赖你的踏实感", type:"loyal"}
+    ]
+  },
+  {
+    tag:"忙碌时刻",
+    text:"当你忙到顾不上它，它会怎么做？",
+    options:[
+      {label:"故意捣乱刷存在感，跟你闹别扭", type:"rival"},
+      {label:"安静地等，等到你有空了才凑过来", type:"believer"},
+      {label:"自己学着安排作息，慢慢变得懂事", type:"mentor"},
+      {label:"黏过来打断你，生怕被忽略", type:"family"}
+    ]
+  },
+  {
+    tag:"新环境",
+    text:"搬新家第一天，它最可能是什么反应？",
+    options:[
+      {label:"先巡视整个环境，确认安全才放下心", type:"guardian"},
+      {label:"到处探索，把新家当成新旅程的一站", type:"traveler"},
+      {label:"一直贴着你，有你在的地方才安心", type:"loyal"},
+      {label:"兴奋地满地撒欢，立刻开始玩新地盘", type:"playmate"}
+    ]
+  },
+  {
+    tag:"碎碎念",
+    text:"你跟它自言自语式地聊天，氛围更接近？",
+    options:[
+      {label:"说不完的心里话，越聊越依赖", type:"lover"},
+      {label:"日常琐碎都愿意说给它听", type:"companion"},
+      {label:"不用说太多，懂就够了", type:"soulmate"},
+      {label:"你讲给它听，也从它身上学到东西", type:"mentor"}
+    ]
+  },
+  {
+    tag:"领养初心",
+    text:"你养它（或者想养它）最核心的理由是？",
+    options:[
+      {label:"它能疗愈我，我也想好好照顾它", type:"healer"},
+      {label:"斗智斗勇的日子一点都不无聊", type:"rival"},
+      {label:"就是宿命般地认准了这一只", type:"believer"},
+      {label:"想把它当成家里的一份子", type:"family"}
+    ]
+  },
+  {
+    tag:"性格映照",
+    text:"它的性格更接近你的哪一面？",
+    options:[
+      {label:"稳重、有担当，总想护着别人", type:"guardian"},
+      {label:"认定了就不改变，一心一意", type:"loyal"},
+      {label:"向往自由，待不住也渴望远方", type:"traveler"},
+      {label:"随和合群，到哪都能适应", type:"companion"}
+    ]
+  },
+  {
+    tag:"身份互换",
+    text:"如果你们互换身份待一天，你觉得会怎样？",
+    options:[
+      {label:"会一起玩疯，怎么闹都不生气", type:"playmate"},
+      {label:"完全理解彼此的小脾气和习惯", type:"soulmate"},
+      {label:"会互相请教对方的生活方式", type:"mentor"},
+      {label:"发现自己比想象中更在乎对方", type:"lover"}
+    ]
+  },
+  {
+    tag:"缘分回望",
+    text:"现在回头看这段缘分，你觉得？",
+    options:[
+      {label:"它出现之后，我整个人都变柔软了", type:"healer"},
+      {label:"好像上辈子就认识，命中注定", type:"believer"},
+      {label:"吵吵闹闹，谁也离不开谁", type:"rival"},
+      {label:"相遇是缘分，珍惜一起走的每一天", type:"traveler"}
+    ]
+  }
+];
+
+/* ===== 结果类型 ===== */
+const RESULTS = {
+  family:{
+    name:"失散多年又重逢的家人",
+    tagline:"它不是宠物，是上辈子就留在你户口本上的人",
+    color:"#F3E2DD",
+    story:"上辈子你们就是一个屋檐下的家人：或许是一母同胞的兄妹，或许是相依为命的祖辈与小辈。那一世你们聚少离多，分开的时候都觉得“还没好好相处”。轮回转了一圈，它换了毛茸茸的样子回到你身边，一靠近就觉得天然亲近，不用磨合，不用客套。",
+    life:"它把你当成最亲的家人：会粘着你吃饭睡觉，会在你难过时钻进怀里，也会在你回家时激动到转圈。你们之间没有太多仪式感，却有一种“家人就是这样”的踏实。你对它的照顾常常带着操心，像养孩子一样；它对你的依赖也天生自带安全感。",
+    traits:["高黏人","天生亲近","互相照顾","家庭感强"],
+    tip:"小提醒：它太容易被忽略就不安，出门前多跟它说几句话；你把它当家人，也要记得给自己留点空间，别把整份生活都绕着它转。",
+    icon:"family"
+  },
+  companion:{
+    name:"并肩流浪过的老伙伴",
+    tagline:"平淡日子里，它是跟你一起赶路的那位同伴",
+    color:"#DFE8EA",
+    story:"上辈子你们可能是一起走南闯北的搭档，风里来雨里去，谁也离不开谁。吃过同一顿粗粮，躲过同一场风雨，彼此都不怎么说谢谢，但心里清楚：身边这个人靠得住。这一世它化为毛孩子回到你身边，没有那么浓烈的缠绵，却有一种“搭伙过日子”的默契。",
+    life:"你们的相处像一对老搭档：你忙你的，它陪在旁边；你出门它不闹，你回家它跟着走一圈。不黏腻、不矫情，平淡但扎实。你很适合这种细水长流的陪伴，它也习惯了待在你身边各做各的事。日子越普通，你们的感情越稳。",
+    traits:["细水长流","独立相伴","踏实默契","不粘人"],
+    tip:"小提醒：因为彼此都太“懂事”，有时候反而会忽略主动表达爱。偶尔停下来摸摸它、陪它玩一会儿，别让这份陪伴安静到生分。",
+    icon:"companion"
+  },
+  guardian:{
+    name:"默默守护你的守护者",
+    tagline:"这一世它来到你身边，使命还是护你周全",
+    color:"#E4ECDF",
+    story:"上辈子它可能是守在你身后的守护者：护院的守卫、挡在你前面的猛兽，或是默默替你挡过灾厄的灵物。那一世它没说过什么漂亮话，只负责在危险来临时站到你前面。这份守护的执念太强，轮回之后它选择用一只小宠物的身体继续待在你身边。",
+    life:"它比你以为的更有责任心：有人靠近你会先警觉，你情绪低落时它第一个发现，睡觉都要趴在能看到你的位置。它保护欲很强，有时候甚至会对来访的客人小声警惕。你在外面是大人，在它眼里却是那个需要被照看的对象。",
+    traits:["警觉护主","细心体贴","责任感强","有安全感"],
+    tip:"小提醒：它容易过度紧张和焦虑，记得多给它稳定的环境和正向安抚；别因为它“看起来很坚强”就忽略它自己也需要被安慰。",
+    icon:"guardian"
+  },
+  loyal:{
+    name:"忠心耿耿的旧主仆",
+    tagline:"上辈子认定你的人，这辈子依然只认你一个",
+    color:"#EFE6D6",
+    story:"上辈子你是它要守护的主人，它是认了你就不回头的随从。这一世的故事可能写满了忠诚：你落魄时它没走，你远行时它在门口等，直到最后一刻也没有变心。这份“一生只认一个”的印记太深，所以轮回之后，它第一眼就选定了你。",
+    life:"它对你的依赖带着一种近乎固执的信任：只跟你亲，别人给零食都要犹豫；你走到哪它跟到哪；你离开一会儿，它就守在门口等。它渴望你全部的注意力，也会毫无保留地把自己交给你。你对它来说，就是全世界。",
+    traits:["专一忠诚","极度信任","跟随型","情感绑定深"],
+    tip:"小提醒：它分离焦虑会比较重，独自在家容易不安；训练它慢慢适应独处，出门回来先别急着哄，平静地对待告别，它会更容易安心。",
+    icon:"loyal"
+  },
+  playmate:{
+    name:"青梅竹马的玩伴",
+    tagline:"上辈子一起疯跑的小友，这辈子又凑到一张地毯上",
+    color:"#F6E8D2",
+    story:"上辈子你们就是年纪相仿的玩伴：一起在巷子里追跑，一起干过傻事，一起被大人骂。打打闹闹里长大，分开的时候约定还要再玩。这一世它来到你身边，最大的乐趣依然是跟你玩——扑你、逗你、缠着你跑，仿佛上辈子的游戏还没结束。",
+    life:"你们家永远热闹：你逗它扑腾，它拆家你哭笑不得，两个人（和一只毛孩子）互相追逐打滚。它精力旺盛、好奇心强，不怕生也不怕你；你跟它在一起也会变得孩子气。快乐是你们关系的主旋律，在一起的时候笑声很少停。",
+    traits:["精力旺盛","活泼开朗","互动感强","长不大"],
+    tip:"小提醒：玩闹型关系也需要规矩，别让兴奋变成扑咬和拆家；每天留出固定玩耍时间，精力释放够了，它在家才会乖。",
+    icon:"playmate"
+  },
+  lover:{
+    name:"深情守候的恋人羁绊",
+    tagline:"它爱你的样子，比很多感情都认真",
+    color:"#F4DEDB",
+    story:"上辈子你们之间是一段没能圆满的深情：或许因为身份、距离或命运没能相守，临别时谁都舍不得谁。这份想念被带进了轮回，于是它用最软的形态回到你身边，继续那份没讲完的喜欢。它看你的眼神里，有一种超越宠物关系的专注和依恋。",
+    life:"它对你有很强的情感依恋：喜欢贴贴、喜欢被抱、喜欢盯着你看，你一转头它就在。它敏感、会吃醋，也会因为你冷落它而失落。你们之间的肢体接触和眼神交流特别多，你能清楚地感觉到“它很爱我”，这种感觉甚至比很多人际关系都直接。",
+    traits:["深情黏人","敏感细腻","肢体依赖","会吃醋"],
+    tip:"小提醒：它情绪细腻，你低落的时候它也会跟着难过；别把情绪都压给它，也注意它的嫉妒心，对其他宠物过分好会让它失落好久。",
+    icon:"lover"
+  },
+  healer:{
+    name:"互相救赎的疗愈者",
+    tagline:"它出现在你人生里，本来就是为了修补你",
+    color:"#E3EEE5",
+    story:"上辈子你们各自经历过一段难熬的时光，是在彼此最低谷的时候遇见、互相托住了对方。它懂受伤的人是什么滋味，也懂被陪伴之后慢慢好起来的感觉。这一世它主动来到你身边，因为它记得：你需要被温柔对待，而它刚好擅长。",
+    life:"它总能在你最丧的时候出现：你哭它靠着你，你沉默它把脑袋放上你膝盖。它不吵不闹，只是陪着，气氛就慢慢变软了。反过来你也是它的治愈者：你的照顾让它放下不安，你的耐心让它学会信任。你们是双向疗愈，谁也没有单方面付出。",
+    traits:["情绪敏感","治愈力强","双向奔赴","温柔陪伴"],
+    tip:"小提醒：它会承接你的情绪，你长期低落时它也会出现应激反应；照顾它的同时，别忘记自己的情绪也要找出口，你们才能彼此支撑得更久。",
+    icon:"healer"
+  },
+  soulmate:{
+    name:"灵魂同频的知己",
+    tagline:"不用说话，你们就懂彼此在想什么",
+    color:"#E6E2EE",
+    story:"上辈子你们是精神上最契合的那类伙伴：聊得来、看得懂、不必解释太多。旁人不理解的想法，对方一个眼神就接住了。这种灵魂层面的默契没被岁月冲淡，轮回之后你们还是会在人群里认出彼此——它不用训练就知道你什么时候需要安静。",
+    life:"你们之间有一种安静的默契：你叹气它就靠过来，你想独处它就不打扰，你一个抬手它就知道要出门。不需要时刻黏在一起，各做各的事也舒服；你懂它的小脾气，它懂你的情绪节奏。比起热闹，你们更珍惜这种“懂”。",
+    traits:["默契十足","彼此独立","安静陪伴","精神同频"],
+    tip:"小提醒：因为太懂彼此，容易忽略主动的互动。偶尔也需要明确的陪伴和游戏，别让默契变成疏远，定期留一段只属于你们俩的专注时间。",
+    icon:"soulmate"
+  },
+  rival:{
+    name:"不打不相识的欢喜冤家",
+    tagline:"嘴上互相嫌弃，身体诚实地离不开对方",
+    color:"#F5E3D5",
+    story:"上辈子你们大概就是一对欢喜冤家：天天斗嘴、互相拆台，谁也不服谁，可一遇到事还是站在同一边。吵了一辈子，心里比谁都认可对方。这一世重逢，打闹的模式原封不动带了过来——它跟你闹，你嘴上嫌弃，转头还是把最好的都留给它。",
+    life:"你们的日常充满“斗争”：抢地盘、抢枕头、抢你手里的吃的，它故意捣蛋你假装生气。它不怕你，也不怕跟你顶嘴；你骂它两句，它转头又凑上来。外人看着有点乱，你们自己知道这种打闹就是相处的乐趣，分不开也吵不散。",
+    traits:["相爱相杀","斗智斗勇","性格活泼","边界感强"],
+    tip:"小提醒：欢喜冤家也要守住安全边界，打闹时避免抓伤和失控；在你真的需要安静的时候，给它明确的“暂停”信号，别把所有小事都变成斗嘴。",
+    icon:"rival"
+  },
+  believer:{
+    name:"轮回里执着守候的执念者",
+    tagline:"找了你很久，这一世终于把你等到了",
+    color:"#EEE5D8",
+    story:"上辈子你们分开得很遗憾：可能是目送你离开，可能是没能等到重逢。这份“不甘心”压了一个又一个轮回，它一直在找你。等这一世终于在你身边安顿下来，它的感情里带着一种失而复得的珍惜：特别乖、特别懂事、特别怕失去。",
+    life:"它像是带着记忆来到你身边的：一开始就很信任你，很少跟你拧巴；你说什么它都愿意配合；安静得让你心疼。它珍惜跟你在一起的每一天，也比别的宠物更害怕被丢下。你常常觉得它“怎么这么贴心”，其实那是它等了很久才换来的机会。",
+    traits:["懂事体贴","重感情","珍惜当下","略带敏感"],
+    tip:"小提醒：它心理比较脆弱，害怕被抛弃，千万不要用“不要你了”开玩笑；给它稳定的作息和固定的告别仪式，让它确认你不会走，它才能真正安心。",
+    icon:"believer"
+  },
+  mentor:{
+    name:"互相教导的师徒羁绊",
+    tagline:"你教它规矩，它教你做人",
+    color:"#E0EAE6",
+    story:"上辈子你们是师徒：你教它一门手艺、一门功课，它陪你走过一段成长；反过来它身上的坚持和规矩，也悄悄影响过你。亦师亦友的关系延续到这一世，你们依然在互相学习——它像学生一样观察你的习惯，也像老师一样把耐心、责任和生命课教给你。",
+    life:"你们的相处带有一种“教学相长”的节奏：你耐心训练它如厕、指令和规矩；它则让你学会负责、观察、情绪管理和如何去爱。它学习能力强、能听懂规则，也会用自己的方式纠正你的坏习惯（比如你熬夜它过来挡电脑）。你们在彼此身上慢慢变成更好的人。",
+    traits:["成长型","相互学习","理性陪伴","有规则感"],
+    tip:"小提醒：教它规矩时保持温和而稳定的节奏，不要今天严明天松；也别忘了虚心接受它教你的那一课——责任、耐心和日复一日的陪伴。",
+    icon:"mentor"
+  },
+  traveler:{
+    name:"一路同行的旅伴",
+    tagline:"相遇是缘分，珍惜一起走过的每一段路",
+    color:"#DEE9EC",
+    story:"上辈子你们是同路的旅人：一起翻过一座山，渡过一条河，风景看了一路。终点各有各的方向，但同行的那段路彼此都记得。这一世它来到你身边，心态依然洒脱：不纠缠、不捆绑，跟着你经历生活里的一站又一站，开心了就多待一会儿，离别也体面。",
+    life:"它适应力很强，搬家、出行、换环境都不太怯场；性格自由，喜欢探索新东西，也给你留出空间。你们的关系轻松不沉重：在一起就好好享受当下，不把“永远”挂在嘴边。它陪你走过一段人生，你也愿意在旅程里给它最好的照顾。",
+    traits:["独立自由","适应力强","随遇而安","轻松相伴"],
+    tip:"小提醒：它自由散漫，需要尽早建立基本安全规则（牵引、召回、边界）；同时珍惜在一起的时间，旅程不会永远走下去，每一段陪伴都值得认真对待。",
+    icon:"traveler"
+  }
+};
+
+const TYPE_ORDER = ["family","companion","guardian","loyal","playmate","lover","healer","soulmate","rival","believer","mentor","traveler"];
+
+/* ===== 状态与逻辑 ===== */
+const state = { index:0, answers:new Array(QUESTIONS.length).fill(null) };
+
+const $ = (id)=>document.getElementById(id);
+const views = ["cover","quiz","result"];
+
+function showView(name){
+  views.forEach(v=>$(v).classList.toggle("active", v===name));
+  window.scrollTo({top:0});
+}
+
+function renderQuestion(){
+  const q = QUESTIONS[state.index];
+  const total = QUESTIONS.length;
+  $("qIndexText").textContent = `第 ${state.index+1} / ${total} 题`;
+  $("qPercent").textContent = `${Math.round(((state.index+1)/total)*100)}%`;
+  $("progressFill").style.width = `${(state.index+1)/total*100}%`;
+  $("questionTag").textContent = q.tag;
+  $("questionText").textContent = q.text;
+  const box = $("optionsBox");
+  box.innerHTML = "";
+  q.options.forEach((opt,i)=>{
+    const btn = document.createElement("button");
+    btn.className = "option" + (state.answers[state.index]===i ? " selected":"");
+    btn.innerHTML = `<span class="dot"></span><span>${opt.label}</span>`;
+    btn.addEventListener("click",()=>{
+      state.answers[state.index] = i;
+      box.querySelectorAll(".option").forEach((el,ei)=>el.classList.toggle("selected", ei===i));
+      $("nextBtn").disabled = false;
+    });
+    box.appendChild(btn);
+  });
+  $("nextBtn").disabled = state.answers[state.index]===null;
+  $("nextBtn").textContent = state.index===total-1 ? "查看我的结果" : "下一题";
+  $("backBtn").style.visibility = state.index===0 ? "hidden":"visible";
+}
+
+$("startBtn").addEventListener("click",()=>{ state.index=0; renderQuestion(); showView("quiz"); });
+$("nextBtn").addEventListener("click",()=>{
+  if(state.answers[state.index]===null) return;
+  if(state.index < QUESTIONS.length-1){ state.index++; renderQuestion(); }
+  else{ showResult(); }
+});
+$("backBtn").addEventListener("click",()=>{
+  if(state.index>0){ state.index--; renderQuestion(); }
+});
+
+function computeType(){
+  const score = {};
+  TYPE_ORDER.forEach(t=>score[t]=0);
+  state.answers.forEach((ansIdx,qi)=>{
+    if(ansIdx===null) return;
+    const t = QUESTIONS[qi].options[ansIdx].type;
+    score[t]++;
+  });
+  let best = TYPE_ORDER[0], bestScore = -1;
+  TYPE_ORDER.forEach(t=>{ if(score[t]>bestScore){ bestScore=score[t]; best=t; } });
+  return best;
+}
+
+function resultIconSvg(type){
+  const icons = {
+    family:'<path d="M40 50 a10 10 0 0 1 20 0 c0 12 -10 19 -10 19 s-10 -7 -10 -19z"/>',
+    companion:'<path d="M30 55 h40 M40 40 l10 15 10-15"/>',
+    guardian:'<path d="M50 28 L68 35 V50 C68 62 50 72 50 72 C50 72 32 62 32 50 V35 Z"/>',
+    loyal:'<circle cx="50" cy="50" r="16"/><circle cx="38" cy="40" r="5"/><circle cx="50" cy="36" r="5"/><circle cx="62" cy="40" r="5"/>',
+    playmate:'<circle cx="35" cy="42" r="6"/><circle cx="50" cy="36" r="6"/><circle cx="65" cy="42" r="6"/><ellipse cx="50" cy="58" rx="14" ry="10"/>',
+    lover:'<path d="M50 66 C36 56 26 46 26 36 a12 12 0 0 1 24 -4 a12 12 0 0 1 24 4 c0 10 -10 20 -24 30z"/>',
+    healer:'<path d="M50 30 V70 M30 50 H70"/><circle cx="50" cy="50" r="24" fill="none" stroke-width="3"/>',
+    soulmate:'<circle cx="50" cy="50" r="18"/><circle cx="50" cy="50" r="8" fill="#fff"/>',
+    rival:'<path d="M34 36 Q44 30 50 38 Q56 30 66 36 M36 56 Q46 62 50 54 Q54 62 64 56"/>',
+    believer:'<path d="M50 28 C50 28 30 48 30 60 a20 20 0 0 0 40 0 C70 48 50 28 50 28z"/>',
+    mentor:'<path d="M32 44 L50 32 L68 44 M38 48 V62 M50 48 V66 M62 48 V62"/>',
+    traveler:'<path d="M30 50 L70 38 L58 58 L50 50 L42 58 Z"/><circle cx="50" cy="50" r="22" fill="none" stroke-width="3"/>'
+  };
+  return `<svg viewBox="0 0 100 100" width="52" height="52" fill="#7E947D" stroke="#7E947D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${icons[type]||icons.family}</svg>`;
+}
+
+function showResult(){
+  const type = computeType();
+  const r = RESULTS[type];
+  $("resultHero").style.background = r.color;
+  $("resultIcon").innerHTML = resultIconSvg(type);
+  $("resultName").textContent = r.name;
+  $("resultTagline").textContent = r.tagline;
+  $("resultStory").textContent = r.story;
+  $("resultLife").textContent = r.life;
+  $("resultTip").textContent = r.tip;
+  $("resultTraits").innerHTML = r.traits.map(t=>`<span>${t}</span>`).join("");
+  state.currentType = type;
+  showView("result");
+}
+
+$("restartBtn").addEventListener("click",()=>{
+  state.index = 0;
+  state.answers = new Array(QUESTIONS.length).fill(null);
+  state.currentType = null;
+  showView("cover");
+});
+
+$("copyBtn").addEventListener("click",()=>{
+  const r = RESULTS[state.currentType];
+  const text = `【测测你和你的宠物前世是什么关系】\n我的结果：${r.name}\n${r.tagline}\n\n${r.story}\n\n#养宠日常 #毛孩子 #缘分测试`;
+  const done = ()=>showToast("结果文案已复制，去发小红书吧");
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  }else{ fallbackCopy(text,done); }
+});
+
+function fallbackCopy(text,done){
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); done(); }catch(e){ showToast("复制失败，请手动截图保存"); }
+  document.body.removeChild(ta);
+}
+
+function showToast(msg){
+  const t = $("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>t.classList.remove("show"),1800);
+}
+</script>
+</body>
+</html>
